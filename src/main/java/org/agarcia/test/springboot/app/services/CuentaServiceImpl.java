@@ -4,9 +4,10 @@ import org.agarcia.test.springboot.app.models.Banco;
 import org.agarcia.test.springboot.app.models.Cuenta;
 import org.agarcia.test.springboot.app.repositories.BancoRepository;
 import org.agarcia.test.springboot.app.repositories.CuentaRepository;
+import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
-
+@Service
 public class CuentaServiceImpl implements CuentaService {
 
     private CuentaRepository cuentaRepository;
