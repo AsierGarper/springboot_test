@@ -1,6 +1,6 @@
 package org.agarcia.test.springboot.app.models;
 
-import jakarta.persistence.*;
+import javax.persistence.*;
 import org.agarcia.test.springboot.app.exceptions.DineroInsuficienteExceptions;
 
 import java.math.BigDecimal;

@@ -5,11 +5,13 @@ import org.agarcia.test.springboot.app.models.Cuenta;
 import org.agarcia.test.springboot.app.repositories.BancoRepository;
 import org.agarcia.test.springboot.app.repositories.CuentaRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
-@Service
-public class CuentaServiceImpl implements CuentaService {
+import java.util.List;
 
+@Service
+public class CuentaServiceImpl implements CuentaService{
     private CuentaRepository cuentaRepository;
     private BancoRepository bancoRepository;
 
@@ -19,36 +21,53 @@ public class CuentaServiceImpl implements CuentaService {
     }
 
     @Override
+    @Transactional(readOnly = true)
+    public List<Cuenta> findAll() {
+        return cuentaRepository.findAll();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
     public Cuenta findById(Long id) {
         return cuentaRepository.findById(id).orElseThrow();
     }
 
     @Override
-    public int revisarTotalTransferencia(Long bancoId) {
+    @Transactional
+    public Cuenta save(Cuenta cuenta) {
+        return cuentaRepository.save(cuenta);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public int revisarTotalTransferencias(Long bancoId) {
         Banco banco = bancoRepository.findById(bancoId).orElseThrow();
         return banco.getTotalTransferencias();
     }
 
     @Override
+    @Transactional(readOnly = true)
     public BigDecimal revisarSaldo(Long cuentaId) {
         Cuenta cuenta = cuentaRepository.findById(cuentaId).orElseThrow();
         return cuenta.getSaldo();
     }
 
     @Override
-    public void tranferir(Long numeroCuentaOrigen, Long numeroCuentaDestino, BigDecimal monto, Long bancoId) {
+    @Transactional
+    public void transferir(Long numCuentaOrigen, Long numCuentaDestino, BigDecimal monto,
+                           Long bancoId) {
 
-        Cuenta cuentaOrigen = cuentaRepository.findById(numeroCuentaOrigen).orElseThrow();
+        Cuenta cuentaOrigen = cuentaRepository.findById(numCuentaOrigen).orElseThrow();
         cuentaOrigen.debito(monto);
         cuentaRepository.save(cuentaOrigen);
 
-        Cuenta cuentaDestino = cuentaRepository.findById(numeroCuentaDestino).orElseThrow();
+        Cuenta cuentaDestino = cuentaRepository.findById(numCuentaDestino).orElseThrow();
         cuentaDestino.credito(monto);
         cuentaRepository.save(cuentaDestino);
 
         Banco banco = bancoRepository.findById(bancoId).orElseThrow();
-        int totalTranferencia = banco.getTotalTransferencias();
-        banco.setTotalTransferencias(++totalTranferencia);
+        int totalTransferencias = banco.getTotalTransferencias();
+        banco.setTotalTransferencias(++totalTransferencias);
         bancoRepository.save(banco);
     }
 }
